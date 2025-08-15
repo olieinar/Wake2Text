@@ -83,10 +83,10 @@ Run the executable from the build directory:
 
 ```bash
 # Windows
-.\build\Release\whisper_streaming_transcriber.exe
+.\build\Release\wake2text.exe
 
 # Linux
-./build/whisper_streaming_transcriber
+./build/wake2text
 ```
 
 ### Command Line Options
@@ -100,17 +100,22 @@ Run the executable from the build directory:
 ### Examples
 
 ```bash
-# Basic usage
-./whisper_streaming_transcriber
+# Basic usage (Windows)
+build\Release\wake2text.exe
 
 # With GPU acceleration
-./whisper_streaming_transcriber --gpu
+build\Release\wake2text.exe --gpu
 
 # Spanish transcription with custom sensitivity
-./whisper_streaming_transcriber --lang=es --ngl=35
+build\Release\wake2text.exe --lang=es --ngl=35
 
 # Quiet mode with custom model
-./whisper_streaming_transcriber --quiet --model=resources/pmdl/custom.pmdl
+build\Release\wake2text.exe --quiet --model=resources/pmdl/custom.pmdl
+
+# Linux examples
+./build/wake2text
+./build/wake2text --gpu
+./build/wake2text --lang=es --ngl=35
 ```
 
 ## How It Works
@@ -129,7 +134,7 @@ Wake2Text/
 ├── CMakeLists.txt              # Main build configuration
 ├── cblas.h                     # Minimal CBLAS implementation for Windows
 ├── src/
-│   └── whisper_streaming_transcriber.cpp  # Main application
+│   └── main.cpp               # Main application
 ├── resources/                  # Hotword models and resources
 │   ├── common.res             # Snowman common resources
 │   ├── pmdl/                  # Personal hotword models
