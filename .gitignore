@@ -1,0 +1,198 @@
+# Build directories
+build/
+build-*/
+out/
+x64/
+x86/
+Win32/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+CTestTestfile.cmake
+Testing/
+
+# Visual Studio / MSBuild
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+*.vcpkg.vcxproj
+*.vcpkg.vcxproj.filters
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Package files
+*.dmg
+*.iso
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+# Audio/Model files (too large for git)
+*.wav
+*.mp3
+*.flac
+*.ogg
+temp_chunk_*.wav
+whisper_model_selected.txt
+
+# Whisper models (download separately)
+models/ggml-*.bin
+whisper.cpp/models/ggml-*.bin
+
+# Personal configuration files
+config.local.*
+settings.local.*
+
+# Test files
+test_output/
+*.test
+
+# Documentation build
+docs/_build/
+*.pdf
+
+# Python (if any helper scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node.js (if any web interface)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Custom ignore patterns for this project
+# Ignore backup of modified CMakeLists.txt
+snowman/lib/CMakeLists.txt.bak
+
+# Include important resource files
+!resources/
+!resources/**/*.res
+!resources/**/*.pmdl
+!resources/**/*.umdl
+!resources/**/*.wav
+
+# Include source files
+!src/
+!src/**/*.cpp
+!src/**/*.h
+!src/**/*.hpp
+
+# Include build configuration
+!CMakeLists.txt
+!cblas.h
+
+# Include documentation
+!README.md
+!LICENSE
+!.gitmodules
