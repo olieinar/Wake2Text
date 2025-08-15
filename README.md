@@ -91,7 +91,7 @@ Run the executable from the build directory:
 
 ### Command Line Options
 
-- `--lang=LANG`: Set language (default: "auto", options: "en", "es", "fr", etc.)
+- `--lang=LANG`: Set language (default: "auto", options: "en", "is", "fr", etc.)
 - `--gpu`: Enable GPU acceleration (requires CUDA build of Whisper)
 - `--ngl=N`: Number of GPU layers to offload (default: 0)
 - `--model=PATH`: Path to custom hotword model
@@ -107,7 +107,7 @@ build\Release\wake2text.exe
 build\Release\wake2text.exe --gpu
 
 # Spanish transcription with custom sensitivity
-build\Release\wake2text.exe --lang=es --ngl=35
+build\Release\wake2text.exe --lang=is --ngl=35
 
 # Quiet mode with custom model
 build\Release\wake2text.exe --quiet --model=resources/pmdl/custom.pmdl
@@ -115,7 +115,7 @@ build\Release\wake2text.exe --quiet --model=resources/pmdl/custom.pmdl
 # Linux examples
 ./build/wake2text
 ./build/wake2text --gpu
-./build/wake2text --lang=es --ngl=35
+./build/wake2text --lang=is --ngl=35
 ```
 
 ## How It Works
