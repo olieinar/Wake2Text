@@ -47,6 +47,12 @@ endif()
 # Add cblas include path for snowman
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+# Add whisper.cpp subdirectory
+set(WHISPER_BUILD_TESTS OFF CACHE BOOL "Don't build whisper tests")
+set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "Don't build whisper examples")
+set(WHISPER_BUILD_SERVER OFF CACHE BOOL "Don't build whisper server")
+add_subdirectory(whisper.cpp)
+
 # Add snowman subdirectory
 set(SNOWMAN_BUILD_APPS OFF CACHE BOOL "Don't build snowman apps")
 set(SNOWMAN_BUILD_TESTS OFF CACHE BOOL "Don't build snowman tests")
@@ -87,31 +93,33 @@ elseif(PULSEAUDIO_FOUND)
 endif()
 
 # Create the main executable
-add_executable(whisper_streaming_transcriber
-    src/whisper_streaming_transcriber.cpp
+add_executable(wake2text
+    src/main.cpp
 )
 
 # Link libraries
-target_link_libraries(whisper_streaming_transcriber PRIVATE
+target_link_libraries(wake2text PRIVATE
+    whisper
     snowman
     snowman_helper
     ${AUDIO_LIBS}
 )
 
 # Include directories
-target_include_directories(whisper_streaming_transcriber PRIVATE
+target_include_directories(wake2text PRIVATE
     ${SNOWMAN_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/whisper.cpp/include
     src
 )
 
 # Platform-specific settings
 if(WIN32)
-    target_compile_definitions(whisper_streaming_transcriber PRIVATE
+    target_compile_definitions(wake2text PRIVATE
         _CRT_SECURE_NO_WARNINGS
         NOMINMAX
         _WIN32_WINNT=0x0601
     )
-    target_link_libraries(whisper_streaming_transcriber PRIVATE
+    target_link_libraries(wake2text PRIVATE
         winmm
         kernel32
         user32
@@ -131,7 +139,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 endif()
 
 # Installation
-install(TARGETS whisper_streaming_transcriber
+install(TARGETS wake2text
     RUNTIME DESTINATION bin
 )
 
