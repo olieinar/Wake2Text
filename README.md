@@ -47,9 +47,10 @@ Use the automated build script that handles all common issues:
 
 The automated script:
 - ✅ Handles submodule initialization automatically
+- ✅ Builds Whisper.cpp with proper configuration
+- ✅ Downloads Whisper large-v3 model automatically (~3GB)
 - ✅ Creates required OpenBLAS configuration
 - ✅ Automatically copies DLLs to correct locations
-- ✅ Downloads Whisper models
 - ✅ Configures and builds everything correctly
 
 ### Manual Build
@@ -70,14 +71,12 @@ If you prefer to build manually or need to troubleshoot:
    rm -rf snowman whisper.cpp
    git clone https://github.com/olieinar/snowman.git
    git clone https://github.com/ggml-org/whisper.cpp.git
-   git add snowman whisper.cpp
-   git commit -m "Update submodule references to working commits"
    ```
 
 3. **Build Whisper.cpp**:
    ```bash
    cd whisper.cpp
-   mkdir build-cuda && cd build-cuda
+   mkdir build && cd build
    
    # CPU-only (recommended)
    cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -161,7 +160,7 @@ build\Release\wake2text.exe
 # With GPU acceleration
 build\Release\wake2text.exe --gpu
 
-# Spanish transcription with custom sensitivity
+# Icelandic transcription with custom GPU layers
 build\Release\wake2text.exe --lang=is --ngl=35
 
 # Quiet mode with custom model

@@ -16,10 +16,14 @@ Set-Location $ProjectRoot
 
 # Clean build if requested
 if ($Clean) {
-    Write-Host "Cleaning build directory..." -ForegroundColor Yellow
+    Write-Host "Cleaning build directories..." -ForegroundColor Yellow
     if (Test-Path "build") {
         Remove-Item -Recurse -Force "build"
     }
+    if (Test-Path "whisper.cpp\build") {
+        Remove-Item -Recurse -Force "whisper.cpp\build"
+    }
+    Write-Host "Build directories cleaned." -ForegroundColor Green
 }
 
 # Ensure submodules are initialized
@@ -29,6 +33,73 @@ if ($submoduleStatus -match "^-") {
     Write-Host "Initializing submodules..." -ForegroundColor Yellow
     git submodule update --init --recursive
 }
+
+# Build Whisper.cpp first
+Write-Host "Building Whisper.cpp..." -ForegroundColor Cyan
+
+# Check if we need to reconfigure whisper.cpp (CUDA setting changed)
+$needsReconfigure = $false
+if (Test-Path "whisper.cpp\build\CMakeCache.txt") {
+    $cacheContent = Get-Content "whisper.cpp\build\CMakeCache.txt" -Raw
+    $currentHasCuda = $cacheContent -match "GGML_CUDA:BOOL=ON"
+    if ($CUDA -and -not $currentHasCuda) {
+        Write-Host "Detected CUDA flag but previous build was CPU-only. Reconfiguring..." -ForegroundColor Yellow
+        $needsReconfigure = $true
+    } elseif (-not $CUDA -and $currentHasCuda) {
+        Write-Host "Detected CPU-only flag but previous build had CUDA. Reconfiguring..." -ForegroundColor Yellow
+        $needsReconfigure = $true
+    }
+}
+
+if ($needsReconfigure) {
+    Remove-Item -Recurse -Force "whisper.cpp\build"
+}
+
+if (!(Test-Path "whisper.cpp\build")) {
+    New-Item -ItemType Directory -Path "whisper.cpp\build" -Force | Out-Null
+}
+
+Set-Location "whisper.cpp\build"
+
+# Configure Whisper.cpp
+$whisperCmakeArgs = @("..", "-DCMAKE_BUILD_TYPE=$BuildType")
+if ($CUDA) {
+    Write-Host "Configuring Whisper.cpp with CUDA support..." -ForegroundColor Green
+    $whisperCmakeArgs += "-DGGML_CUDA=ON"
+} else {
+    Write-Host "Configuring Whisper.cpp for CPU-only..." -ForegroundColor Cyan
+}
+
+& cmake @whisperCmakeArgs
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Whisper.cpp cmake configuration failed!"
+    exit 1
+}
+
+# Build Whisper.cpp
+& cmake --build . --config $BuildType
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Whisper.cpp build failed!"
+    exit 1
+}
+
+# Download Whisper model if it doesn't exist
+Set-Location "..\models"
+if (!(Test-Path "ggml-large-v3.bin")) {
+    Write-Host "Downloading Whisper large-v3 model (~3GB)..." -ForegroundColor Yellow
+    Write-Host "This may take a few minutes depending on your internet connection." -ForegroundColor Yellow
+    & ".\download-ggml-model.cmd" "large-v3"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Model download failed!"
+        exit 1
+    }
+    Write-Host "Model downloaded successfully!" -ForegroundColor Green
+} else {
+    Write-Host "Whisper model already exists, skipping download." -ForegroundColor Green
+}
+
+# Navigate back to project root
+Set-Location "..\.."
 
 # Create build directory
 if (!(Test-Path "build")) {
@@ -62,11 +133,8 @@ $cmakeArgs = @(
     "-DCMAKE_PREFIX_PATH=$PWD"
 )
 
-if ($CUDA) {
-    Write-Host "CUDA support enabled" -ForegroundColor Green
-    # Note: This would require proper CUDA setup
-    $cmakeArgs += "-DWHISPER_CUDA=ON"
-}
+# Note: CUDA is handled at the whisper.cpp level, not the main project level
+# The main project just links to the whisper libraries
 
 & cmake @cmakeArgs
 
