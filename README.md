@@ -17,6 +17,7 @@ A real-time hotword-activated speech-to-text transcription system that combines 
 - Visual Studio 2022 (or Visual Studio Build Tools)
 - CMake 3.16 or higher
 - Git with submodules support
+- PowerShell (for the automated build script)
 
 ### Linux
 - GCC or Clang with C++17 support
@@ -26,56 +27,110 @@ A real-time hotword-activated speech-to-text transcription system that combines 
 
 ## Installation
 
+### Quick Build (Recommended)
+
+#### Windows
+Use the automated build script that handles all common issues:
+```powershell
+# Simple build
+.\setup-build.ps1
+
+# Clean build from scratch
+.\setup-build.ps1 -Clean
+
+# Build with CUDA (if available)
+.\setup-build.ps1 -CUDA
+
+# Debug build
+.\setup-build.ps1 -BuildType Debug
+```
+
+The automated script:
+- ✅ Handles submodule initialization automatically
+- ✅ Creates required OpenBLAS configuration
+- ✅ Automatically copies DLLs to correct locations
+- ✅ Downloads Whisper models
+- ✅ Configures and builds everything correctly
+
+### Manual Build
+
+If you prefer to build manually or need to troubleshoot:
+
 1. **Clone the repository with submodules**:
    ```bash
    git clone --recursive https://github.com/your-username/Wake2Text.git
    cd Wake2Text
    ```
 
-2. **Update submodules** (if not cloned recursively):
+2. **Initialize submodules** (if submodule errors occur):
    ```bash
    git submodule update --init --recursive
+   
+   # If "not our ref" errors occur, manually clone:
+   rm -rf snowman whisper.cpp
+   git clone https://github.com/olieinar/snowman.git
+   git clone https://github.com/ggml-org/whisper.cpp.git
+   git add snowman whisper.cpp
+   git commit -m "Update submodule references to working commits"
    ```
 
-3. **Build Whisper.cpp** (required for transcription):
+3. **Build Whisper.cpp**:
    ```bash
-   # For CPU-only version
-   cd whisper.cpp
-   mkdir build && cd build
-   cmake .. -DCMAKE_BUILD_TYPE=Release
-   cmake --build . --config Release
-   cd ../..
-   
-   # For CUDA version (if you have NVIDIA GPU)
    cd whisper.cpp
    mkdir build-cuda && cd build-cuda
-   cmake .. -DWHISPER_CUDA=ON -DCMAKE_BUILD_TYPE=Release
+   
+   # CPU-only (recommended)
+   cmake .. -DCMAKE_BUILD_TYPE=Release
    cmake --build . --config Release
+   
+   # Or with CUDA (if you have NVIDIA GPU)
+   cmake .. -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release
+   cmake --build . --config Release
+   
    cd ../..
    ```
 
 4. **Download Whisper models**:
    ```bash
    cd whisper.cpp/models
+   
+   # Windows
+   .\download-ggml-model.cmd large-v3
+   
+   # Linux/Mac
    ./download-ggml-model.sh large-v3
-   # Or on Windows:
-   ./download-ggml-model.cmd large-v3
+   
    cd ../..
    ```
 
 5. **Build Wake2Text**:
-   ```bash
+   
+   **Windows:**
+   ```powershell
    mkdir build
    cd build
    
-   # Windows with Visual Studio
-   cmake .. -G "Visual Studio 17 2022"
-   cmake --build . --config Release
+   # Create OpenBLAS config (handles dependency issues)
+   @"
+   add_library(OpenBLAS::OpenBLAS INTERFACE IMPORTED)
+   target_include_directories(OpenBLAS::OpenBLAS INTERFACE "`${CMAKE_CURRENT_SOURCE_DIR}/..")
+   set(OpenBLAS_FOUND TRUE)
+   "@ | Out-File -FilePath "OpenBLASConfig.cmake" -Encoding UTF8
    
-   # Linux
+   # Configure and build
+   cmake .. -G "Visual Studio 17 2022" -DCMAKE_PREFIX_PATH="$PWD"
+   cmake --build . --config Release
+   ```
+   
+   **Linux:**
+   ```bash
+   mkdir build
+   cd build
    cmake .. -DCMAKE_BUILD_TYPE=Release
    make -j$(nproc)
    ```
+
+**Note**: The build now automatically copies all required DLLs to the executable directory, eliminating manual DLL copying issues.
 
 ## Usage
 
@@ -171,16 +226,35 @@ The application comes with several pre-trained hotword models:
    - Check that the executable exists in `whisper.cpp/build/bin/Release/` or similar
 
 2. **"Required model ggml-large-v3.bin not found"**:
-   - Download the model using the whisper.cpp model download script
-   - Place it in `models/` or `whisper.cpp/models/` directory
+   - Download the model using the whisper.cpp model download script in `whisper.cpp/models/`
+   - Verify the model file exists and is ~3GB in size
 
-3. **Audio input issues**:
-   - Windows: Check microphone permissions and default audio device
-   - Linux: Install PulseAudio development packages and check audio permissions
+3. **Application crashes on startup with missing DLL error**:
+   - **Solution**: Use the automated build script (`setup-build.ps1`) which handles DLL copying
+   - Or manually copy DLLs from `build/bin/Release/` to `build/Release/`
+   - Ensure all whisper DLLs are in the same directory as wake2text.exe
 
-4. **GPU acceleration not working**:
+4. **OpenBLAS not found during cmake configuration**:
+   - **Solution**: The automated build script creates the required OpenBLAS config
+   - If building manually, create `build/OpenBLASConfig.cmake` with the OpenBLAS config shown in the manual build section
+
+5. **Submodules are empty after cloning**:
+   - **Solution**: 
+   ```bash
+   git submodule update --init --recursive
+   # If that fails with "not our ref" errors:
+   rm -rf snowman whisper.cpp
+   git clone https://github.com/olieinar/snowman.git
+   git clone https://github.com/ggml-org/whisper.cpp.git
+   ```
+
+6. **Audio input issues**:
+   - **Windows**: Check microphone permissions and default audio device
+   - **Linux**: Install PulseAudio development packages and check audio permissions
+
+7. **GPU acceleration not working**:
    - Verify CUDA installation and compatible GPU
-   - Rebuild whisper.cpp with CUDA support (`-DWHISPER_CUDA=ON`)
+   - Rebuild whisper.cpp with CUDA support (`-DGGML_CUDA=ON`)
    - Check that CUDA libraries are in your PATH
 
 ### Debug Mode

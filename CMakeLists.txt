@@ -126,6 +126,23 @@ if(WIN32)
         shell32
         advapi32
     )
+    
+    # Post-build step to copy DLLs to the executable directory
+    add_custom_command(TARGET wake2text POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:whisper>"
+            "$<TARGET_FILE_DIR:wake2text>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:ggml>"
+            "$<TARGET_FILE_DIR:wake2text>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:ggml-base>"
+            "$<TARGET_FILE_DIR:wake2text>"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:ggml-cpu>"
+            "$<TARGET_FILE_DIR:wake2text>"
+        COMMENT "Copying required DLLs to executable directory"
+    )
 endif()
 
 # Create resources directory structure
