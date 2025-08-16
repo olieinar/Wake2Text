@@ -268,15 +268,6 @@ export WS_DEBUG_WHISPER=1
 export WS_DEBUG_MODEL=1
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Commit your changes: `git commit -am 'Add feature'`
-5. Push to the branch: `git push origin feature-name`
-6. Submit a pull request
-
 ## Dependencies
 
 - [Snowman](https://github.com/olieinar/snowman) - Hotword detection library
